@@ -1,18 +1,41 @@
 from math import sqrt
+import tkinter as tk
+from tkinter import ttk
 
-h1 = float(input("Koło lewe: "))
-h2 = float(input("Koło prawe: "))
-measurments = []
+okno = tk.Tk()
 
-def add_measurment(h1, h2):
+okno.title("Kalkulator")
+
+label_left = tk.Label(okno, text = "Koło lewe:")
+label_left.pack()
+
+entry_left = tk.Entry(okno)
+entry_left.pack()
+
+label_right = tk.Label(okno, text = "Koło prawe:")
+label_right.pack()
+
+entry_right = tk.Entry(okno)
+entry_right.pack()
+
+def fetch_and_add():
+    h1 = float(entry_left.get())
+    h2 = float(entry_right.get())
     h1_h2 = (h1, h2)
     measurments.append(h1_h2)
+    table.insert('', 'end', values=h1_h2)
+
+    entry_left.delete(0, tk.END)
+    entry_right.delete(0, tk.END)
+
+add_button = tk.Button(okno, text = "+", command = fetch_and_add)
+add_button.pack()
 
 
 def calc_c():
     c_result = []
     if len(measurments) <= 1:
-        raise ValueError("No measurments")
+        raise ValueError("Za mała liczba pomiarów.")
     else:
         for h1, h2 in measurments:
             if h1 < 200:
@@ -30,5 +53,27 @@ def calc_c():
         sum_v += v
 
     c_error = sqrt(sum_v / (len(c_result)*(len(c_result) - 1)))
+    return round(c_average, 4), round(c_error, 4)
 
-    return c_error, c_result
+def show_result():
+    average, error = calc_c()
+    label_result.config(text=f"Wynik kolimacji: {average}, Błąd kolimacji: {error}")
+    label_result.pack()
+
+
+table = ttk.Treeview(okno, columns=("h1", "h2"), show="headings")
+table.heading("h1", text="Koło lewe")
+table.heading("h2", text="Koło prawe")
+table.pack()
+
+label_result = tk.Label(okno, text = "Wynik:")
+label_result.pack()
+
+calculate_button = tk.Button(okno, text = "Oblicz", command = show_result)
+calculate_button.pack()
+
+measurments = []
+
+
+
+okno.mainloop()
