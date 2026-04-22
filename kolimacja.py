@@ -1,5 +1,6 @@
 import tkinter as tk
-from tkinter import ttk
+from importlib.resources import contents
+from tkinter import ttk, filedialog
 from math import sqrt
 
 measurements = []
@@ -10,6 +11,33 @@ entry_right = None
 tabela = None
 label_wynik = None
 
+def import_data():
+    path = filedialog.askopenfilename(
+        title="Wybierz plik z pomiarami",
+        filetypes=[("Pliki tekstowe", "*.txt"), ("Wszystkie pliki", "*.*")],
+    )
+    print("path:", path)
+    if not path:
+        return
+    with open(path, encoding="cp1250") as file:
+        lines = file.readlines()
+
+    for line in lines:
+        print(repr(line))
+        line = line.strip()
+
+        if not line:
+            continue
+
+        if not line[0].isdigit():
+            continue
+
+        parts = line.split()
+        h1 = float(parts[0].replace(",", "."))
+        h2 = float(parts[1].replace(",", "."))
+        h1_h2 = (h1, h2)
+        measurements.append(h1_h2)
+        tabela.insert('', 'end', values=h1_h2)
 
 def calc_c():
     c_result = []
@@ -71,12 +99,15 @@ def init_ui(parent):
     global entry_left, entry_right, tabela, label_wynik
 
 
-    label_left = tk.Label(parent, text="Koło lewe:")
+    btn_import = tk.Button(parent, text="Wczytaj dane z pliku tekstowego", command=import_data)
+    btn_import.pack(pady=5)
+
+    label_left = tk.Label(parent, text="Odczyt H1:")
     label_left.pack()
     entry_left = tk.Entry(parent)
     entry_left.pack()
 
-    label_right = tk.Label(parent, text="Koło prawe:")
+    label_right = tk.Label(parent, text="Odczyt H2:")
     label_right.pack()
     entry_right = tk.Entry(parent)
     entry_right.pack()
@@ -90,11 +121,11 @@ def init_ui(parent):
     tabela.heading("H2", text="Koło Prawe")
     tabela.pack(pady=5)
 
-    clear_button = tk.Button(parent, text="Wyczyść tabelę", command=clear_data)
-    clear_button.pack(pady=5)
-
     calc_button = tk.Button(parent, text="Oblicz Kolimację", command=show_result)
     calc_button.pack(pady=5)
+
+    clear_button = tk.Button(parent, text="Wyczyść tabelę", command=clear_data)
+    clear_button.pack(pady=5)
 
     label_wynik = tk.Label(parent, text="Wyniki pojawią się tutaj", pady=10)
     label_wynik.pack()

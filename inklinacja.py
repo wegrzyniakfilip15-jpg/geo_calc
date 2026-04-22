@@ -86,6 +86,9 @@ def init_ui(parent):
     e_c = tk.Entry(parent)
     e_c.pack()
 
+    btn_add = tk.Button(parent, text="+", bg="lightgray",
+                        command=lambda: dodaj_do_serii(e_h1, e_h2, e_z, e_c, tabela_i, label_wynik))
+    btn_add.pack(pady=5)
 
     tabela_i = ttk.Treeview(parent, columns=("H1", "H2", "Z", "c", "i"), show="headings", height=5)
     tabela_i.heading("H1", text="H1")
@@ -100,13 +103,9 @@ def init_ui(parent):
     tabela_i.pack(pady=10)
 
 
-    btn_add = tk.Button(parent, text="+", bg="lightgray",
-                        command=lambda: dodaj_do_serii(e_h1, e_h2, e_z, e_c, tabela_i, label_wynik))
-    btn_add.pack(pady=5)
-
     label_wynik = tk.Label(parent, text="Wprowadź dane pomiarów z serii", pady=5)
 
-    btn_calc = tk.Button(parent, text="Oblicz Średnią Inklinację", bg="lightblue",
+    btn_calc = tk.Button(parent, text="Oblicz Średnią Inklinację",
                          command=lambda: oblicz_wynik_serii(label_wynik))
     btn_calc.pack(pady=5)
 
