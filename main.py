@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import kolimacja
 import inklinacja
+import wsp_zalamania
 
 def main():
     root = tk.Tk()
@@ -20,6 +21,10 @@ def main():
     tab_inklinacja = ttk.Frame(notebook)
     notebook.add(tab_inklinacja, text="Inklinacja (Wysoki Cel)")
     inklinacja.init_ui(tab_inklinacja)
+
+    tab_wsp_zalamania = ttk.Frame(notebook)
+    notebook.add(tab_wsp_zalamania, text="Współczynnik załamania światła")
+    wsp_zalamania.init_ui(tab_wsp_zalamania)
 
     root.mainloop()
 
