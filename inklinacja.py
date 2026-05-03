@@ -2,19 +2,18 @@ import tkinter as tk
 from tkinter import ttk
 from math import tan, cos, pi, sqrt
 
-# Lista przechowująca wyliczone wartości 'i' dla całej serii
 measurements_i = []
 
 
-def clear_data(tabela_i, label_wynik):
+def clear_data(table_i, label_result):
     global measurements_i
     measurements_i = []
-    for item in tabela_i.get_children():
-        tabela_i.delete(item)
-    label_wynik.config(text="Dane wyczyszczone.")
+    for item in table_i.get_children():
+        table_i.delete(item)
+    label_result.config(text="Dane wyczyszczone.")
 
 
-def dodaj_do_serii(entry_h1, entry_h2, entry_z, entry_c, tabela_i, label_wynik):
+def add_to_table(entry_h1, entry_h2, entry_z, entry_c, table_i, label_result):
     try:
         h1 = float(entry_h1.get())
         h2 = float(entry_h2.get())
@@ -35,22 +34,22 @@ def dodaj_do_serii(entry_h1, entry_h2, entry_z, entry_c, tabela_i, label_wynik):
 
 
         measurements_i.append(i)
-        tabela_i.insert('', 'end', values=(h1, h2, z_grad, c, i_rounded))
+        table_i.insert('', 'end', values=(h1, h2, z_grad, c, i_rounded))
 
 
         entry_h1.delete(0, tk.END)
         entry_h2.delete(0, tk.END)
         entry_z.delete(0, tk.END)
 
-        label_wynik.config(text=f"Dodano pomiar. Oczekuję na kolejne...")
+        label_result.config(text=f"Dodano pomiar.")
 
     except ValueError:
-        label_wynik.config(text="Błąd: Sprawdź wprowadzone dane!")
+        label_result.config(text="Błąd: Sprawdź wprowadzone dane!")
 
 
-def oblicz_wynik_serii(label_wynik):
+def calc_result(label_result):
     if len(measurements_i) <= 1:
-        label_wynik.config(text="Błąd: Dodaj co najmniej 2 pomiary do serii!")
+        label_result.config(text="Błąd: Dodaj co najmniej 2 pomiary do serii!")
         return
 
 
@@ -65,7 +64,7 @@ def oblicz_wynik_serii(label_wynik):
 
     i_error = sqrt(sum_v / (len(measurements_i) * (len(measurements_i) - 1)))
 
-    label_wynik.config(
+    label_result.config(
         text=f"Średnia Inklinacja (i): {round(i_average, 4)}\nBłąd średni serii (m0): {round(i_error, 4)}")
 
 
@@ -87,7 +86,7 @@ def init_ui(parent):
     e_c.pack()
 
     btn_add = tk.Button(parent, text="+", bg="lightgray",
-                        command=lambda: dodaj_do_serii(e_h1, e_h2, e_z, e_c, tabela_i, label_wynik))
+                        command=lambda: add_to_table(e_h1, e_h2, e_z, e_c, tabela_i, label_result))
     btn_add.pack(pady=5)
 
     tabela_i = ttk.Treeview(parent, columns=("H1", "H2", "Z", "c", "i"), show="headings", height=5)
@@ -103,13 +102,13 @@ def init_ui(parent):
     tabela_i.pack(pady=10)
 
 
-    label_wynik = tk.Label(parent, text="Wprowadź dane pomiarów z serii", pady=5)
+    label_result = tk.Label(parent, text="Wprowadź dane pomiarów z serii", pady=5)
 
     btn_calc = tk.Button(parent, text="Oblicz Średnią Inklinację",
-                         command=lambda: oblicz_wynik_serii(label_wynik))
+                         command=lambda: calc_result(label_result))
     btn_calc.pack(pady=5)
 
-    btn_clear = tk.Button(parent, text="Wyczyść tabelę", command=lambda: clear_data(tabela_i, label_wynik))
+    btn_clear = tk.Button(parent, text="Wyczyść tabelę", command=lambda: clear_data(tabela_i, label_result))
     btn_clear.pack(pady=5)
 
-    label_wynik.pack()
+    label_result.pack()
