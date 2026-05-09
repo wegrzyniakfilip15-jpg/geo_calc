@@ -1,3 +1,4 @@
+import math
 import tkinter as tk
 from importlib.resources import contents
 from tkinter import ttk, filedialog
@@ -19,7 +20,7 @@ def import_data():
     print("path:", path)
     if not path:
         return
-    with open(path, encoding="cp1250") as file:
+    with open(path, encoding="utf-8") as file:
         lines = file.readlines()
 
     for line in lines:
@@ -64,18 +65,22 @@ def calc_c():
     return round(c_average, 4), round(c_error, 4)
 
 
-def fetch_and_add():
+def calc_corr_h():
+    c_avg, c_err = calc_c()
+
+    if c_avg == "Brak danych":
+        label_wynik.config(text="Błąd: Wczytaj najpierw plik z danymi!")
+        return
+
     try:
-        h1 = float(entry_left.get())
-        h2 = float(entry_right.get())
-        h1_h2 = (h1, h2)
+        h = float(entry_h.get())
+        z = float(entry_z.get())
 
-        measurements.append(h1_h2)
-        tabela.insert('', 'end', values=h1_h2)
+        z_rad = z * math.pi / 200
 
+        corr_h = h + c_avg/math.sin(z_rad)
 
-        entry_left.delete(0, tk.END)
-        entry_right.delete(0, tk.END)
+        label_wynik.config(text=f"Poprawiony odczyt koła poziomego: {corr_h}")
     except ValueError:
         label_wynik.config(text="Błąd: Wprowadź poprawne liczby!")
 
@@ -96,24 +101,11 @@ def show_result():
 
 
 def init_ui(parent):
-    global entry_left, entry_right, tabela, label_wynik
+    global entry_h, entry_z, tabela, label_wynik
 
 
     btn_import = tk.Button(parent, text="Wczytaj dane z pliku tekstowego", command=import_data)
     btn_import.pack(pady=5)
-
-    label_left = tk.Label(parent, text="Odczyt H1:")
-    label_left.pack()
-    entry_left = tk.Entry(parent)
-    entry_left.pack()
-
-    label_right = tk.Label(parent, text="Odczyt H2:")
-    label_right.pack()
-    entry_right = tk.Entry(parent)
-    entry_right.pack()
-
-    add_button = tk.Button(parent, text="+", command=fetch_and_add)
-    add_button.pack(pady=5)
 
 
     tabela = ttk.Treeview(parent, columns=("H1", "H2"), show="headings", height=5)
@@ -126,6 +118,19 @@ def init_ui(parent):
 
     clear_button = tk.Button(parent, text="Wyczyść tabelę", command=clear_data)
     clear_button.pack(pady=5)
+
+    label_h = tk.Label(parent, text="Odczyt poziomy:")
+    label_h.pack(pady=(30, 0))
+    entry_h = tk.Entry(parent)
+    entry_h.pack()
+
+    label_z = tk.Label(parent, text="Odległość zenitalna:")
+    label_z.pack()
+    entry_z = tk.Entry(parent)
+    entry_z.pack()
+
+    add_button = tk.Button(parent, text="Oblicz poprawiony odczyt", command=calc_corr_h)
+    add_button.pack(pady=5)
 
     label_wynik = tk.Label(parent, text="Wyniki pojawią się tutaj", pady=10)
     label_wynik.pack()

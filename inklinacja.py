@@ -1,8 +1,61 @@
+import math
 import tkinter as tk
-from tkinter import ttk
-from math import tan, cos, pi, sqrt
+from codecs import ignore_errors
+from tkinter import ttk, filedialog
+from math import tan, cos, pi, sqrt, tan
 
 measurements_i = []
+z_file = 0.0
+c_file = 0.0
+
+def import_data(table_i):
+    path = filedialog.askopenfilename(
+        title="Wybierz plik z pomiarami",
+        filetypes=[("Pliki tekstowe", "*.txt"), ("Wszystkie pliki", "*.*")],
+    )
+    print("path:", path)
+    if not path:
+        return
+    with open(path, encoding="utf-8") as file:
+        lines = file.readlines()
+
+    for line in lines:
+        print(repr(line))
+        line = line.strip()
+
+        if not line:
+            continue
+
+
+        parts = line.split()
+
+        if parts[0] == "c":
+            c = float(parts[1].replace(",", "."))
+            continue
+        if parts[0] == "mc":
+            mc = float(parts[1].replace(",", "."))
+            continue
+        if parts[0] == "z":
+            z = float(parts[1].replace(",", "."))
+            continue
+        try:
+            h1 = float(parts[0].replace(",", "."))
+            h2 = float(parts[1].replace(",", "."))
+
+            z_rad_file = z_file * (math.pi / 200)
+            if h1 < 200:
+                delta_h = (h2 - (h1 + 200)) / 2
+            else:
+                delta_h = (h2 - (h1 - 200)) / 2
+
+            i_val = (delta_h * math.tan(z_rad_file)) - (c_file / math.cos(z_rad_file))
+
+            measurements_i.append(i_val)
+
+            table_i.insert('', 'end', values=(h1, h2, z_file, c_file, round(i_val, 4)))
+        except ValueError:
+            continue
+
 
 
 def clear_data(table_i, label_result):
@@ -13,38 +66,6 @@ def clear_data(table_i, label_result):
     label_result.config(text="Dane wyczyszczone.")
 
 
-def add_to_table(entry_h1, entry_h2, entry_z, entry_c, table_i, label_result):
-    try:
-        h1 = float(entry_h1.get())
-        h2 = float(entry_h2.get())
-        z_grad = float(entry_z.get())
-        c = float(entry_c.get())
-
-        z_rad = z_grad * (pi / 200)
-
-
-        if h1 < 200:
-            delta_h = (h2 - (h1 + 200)) / 2
-        else:
-            delta_h = (h2 - (h1 - 200)) / 2
-
-
-        i = (delta_h * tan(z_rad)) - (c / cos(z_rad))
-        i_rounded = round(i, 4)
-
-
-        measurements_i.append(i)
-        table_i.insert('', 'end', values=(h1, h2, z_grad, c, i_rounded))
-
-
-        entry_h1.delete(0, tk.END)
-        entry_h2.delete(0, tk.END)
-        entry_z.delete(0, tk.END)
-
-        label_result.config(text=f"Dodano pomiar.")
-
-    except ValueError:
-        label_result.config(text="Błąd: Sprawdź wprowadzone dane!")
 
 
 def calc_result(label_result):
@@ -53,40 +74,44 @@ def calc_result(label_result):
         return
 
 
-    i_average = sum(measurements_i) / len(measurements_i)
+    i_avg = sum(measurements_i) / len(measurements_i)
 
 
     sum_v = 0
     for i_val in measurements_i:
-        v = i_val - i_average
+        v = i_val - i_avg
         sum_v += pow(v, 2)
 
 
-    i_error = sqrt(sum_v / (len(measurements_i) * (len(measurements_i) - 1)))
+    i_err = sqrt(sum_v / (len(measurements_i) * (len(measurements_i) - 1)))
 
     label_result.config(
-        text=f"Średnia Inklinacja (i): {round(i_average, 4)}\nBłąd średni serii (m0): {round(i_error, 4)}")
+        text=f"Średnia Inklinacja (i): {round(i_avg, 4)}\nBłąd średni serii (m0): {round(i_err, 4)}")
+    return i_avg, i_err
+
+def calc_corr_h(e_h, e_z, label_result, label_h_result):
+    try:
+        result = calc_result(label_result)
+        if result is None:
+            return
+        i_avg, i_err = result
+        e_h = float(e_h.get())
+        e_z = float(e_z.get())
+
+        i_avg, i_err = calc_result(label_result)
+        z_rad = e_z * math.pi / 200
+
+        corr_h = e_h + i_avg * 1/math.tan(z_rad)
+
+        label_h_result.config(text=f"Poprawiony odczyt poziomy: {round(corr_h, 4)}")
+    except ValueError:
+        label_h_result.config(text="Błąd: Wprowadź poprawne liczby w oknach!")
+
 
 
 def init_ui(parent):
-    tk.Label(parent, text="Odczyt H1:").pack()
-    e_h1 = tk.Entry(parent)
-    e_h1.pack()
 
-    tk.Label(parent, text="Odczyt H2:").pack()
-    e_h2 = tk.Entry(parent)
-    e_h2.pack()
-
-    tk.Label(parent, text="Kąt zenitalny Z (grady):").pack()
-    e_z = tk.Entry(parent)
-    e_z.pack()
-
-    tk.Label(parent, text="Wartość błędu kolimacji (c):").pack()
-    e_c = tk.Entry(parent)
-    e_c.pack()
-
-    btn_add = tk.Button(parent, text="+", bg="lightgray",
-                        command=lambda: add_to_table(e_h1, e_h2, e_z, e_c, tabela_i, label_result))
+    btn_add = tk.Button(parent, text="Wczytaj dane z pliku", command=lambda:import_data(tabela_i))
     btn_add.pack(pady=5)
 
     tabela_i = ttk.Treeview(parent, columns=("H1", "H2", "Z", "c", "i"), show="headings", height=5)
@@ -99,10 +124,10 @@ def init_ui(parent):
     for col in ("H1", "H2", "Z", "c", "i"):
         tabela_i.column(col, width=80, anchor="center")
 
-    tabela_i.pack(pady=10)
+    tabela_i.pack()
 
-
-    label_result = tk.Label(parent, text="Wprowadź dane pomiarów z serii", pady=5)
+    label_result = tk.Label(parent, text="Wprowadź dane pomiarów z serii")
+    label_result.pack()
 
     btn_calc = tk.Button(parent, text="Oblicz Średnią Inklinację",
                          command=lambda: calc_result(label_result))
@@ -111,4 +136,18 @@ def init_ui(parent):
     btn_clear = tk.Button(parent, text="Wyczyść tabelę", command=lambda: clear_data(tabela_i, label_result))
     btn_clear.pack(pady=5)
 
-    label_result.pack()
+    tk.Label(parent, text="Odczyt poziomy:").pack(pady=(20, 0))
+    e_h = tk.Entry(parent)
+    e_h.pack()
+
+    tk.Label(parent, text="Odległość zenitalna:").pack()
+    e_z = tk.Entry(parent)
+    e_z.pack()
+
+    label_h_result = tk.Label(parent, text="", pady=5)
+    label_h_result.pack()
+
+    btn_corr = tk.Button(parent, text="Oblicz poprawiony odczyt H",
+                         command=lambda: calc_corr_h(e_h, e_z, label_result, label_h_result))
+    btn_corr.pack()
+
