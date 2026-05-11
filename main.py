@@ -28,7 +28,7 @@ def main():
     wsp_zalamania.init_ui(tab_wsp_zalamania)
 
     tab_popr_atmosfer = ttk.Frame(notebook)
-    notebook.add(tab_popr_atmosfer, text="Obliczanie poprawki atmosferycznej.")
+    notebook.add(tab_popr_atmosfer, text="Obliczanie poprawki atmosferycznej")
     popr_atmosfer.init_ui(tab_popr_atmosfer)
 
     root.mainloop()
