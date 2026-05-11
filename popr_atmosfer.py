@@ -1,6 +1,6 @@
 import math
 import tkinter as tk
-from math import exp
+from tkinter import filedialog, simpledialog, ttk
 from wsp_zalamania import calc_Ng0
 
 def calc_ew(t_wet):
@@ -33,6 +33,44 @@ def calc_corr(wavelength, pr, t_dry, t_wet, measured_l):
     corr_length = measured_l + correction
     return corr_per_km, correction, corr_length
 
+def import_data(table):
+    for item in table.get_children():
+        table.delete(item)
+
+    wavelength = simpledialog.askfloat("Długość fali", "Podaj długość fali dalmierza (nm):")
+    if wavelength is None:
+        return
+
+    path = filedialog.askopenfilename(
+            title="Wybierz plik z pomiarami",
+            filetypes=[("Pliki tekstowe", "*.txt"), ("Wszystkie pliki", "*.*")],
+        )
+    print("path:", path)
+    if not path:
+        return
+    with open(path, encoding="utf-8") as file:
+        lines = file.readlines()
+
+    for line in lines:
+        print(repr(line))
+        line = line.strip()
+
+        if not line:
+            continue
+        try:
+            parts = line.split(sep = ';')
+            lp = parts[0].strip()
+            ts = float(parts[1].replace(',', '.').strip())
+            tm = float(parts[2].replace(',', '.').strip())
+            p = float(parts[3].replace(',', '.').strip())
+            length = float(parts[4].replace(',', '.').strip())
+            corr_per_km, correction, corr_length = calc_corr(wavelength, p, ts, tm, length)
+
+            table.insert('', 'end', values=(lp, p, ts, tm, round(corr_length, 4)))
+        except (ValueError, IndexError):
+            continue
+
+
 
 def show_results(entry_wavelength, entry_temp_dry, entry_temp_wet, entry_air_pressure, entry_measured_length,
                  label_corr_per_km, label_correction, label_corrected_length):
@@ -42,6 +80,27 @@ def show_results(entry_wavelength, entry_temp_dry, entry_temp_wet, entry_air_pre
         temp_wet = float(entry_temp_wet.get())
         air_pressure = float(entry_air_pressure.get())
         measured_length = float(entry_measured_length.get())
+
+        if temp_wet > temp_dry:
+            label_corr_per_km.config(text="Błąd: Temperatura mokra nie może być wyższa od suchej!")
+            label_correction.config(text="")
+            label_corrected_length.config(text="")
+            return
+        if air_pressure <= 0:
+            label_corr_per_km.config(text="Błąd: Ciśnienie musi być dodatnie!")
+            label_correction.config(text="")
+            label_corrected_length.config(text="")
+            return
+        if measured_length <= 0:
+            label_corr_per_km.config(text="Błąd: Odległość musi być dodatnia!")
+            label_correction.config(text="")
+            label_corrected_length.config(text="")
+            return
+        if wavelength <= 0:
+            label_corr_per_km.config(text="Błąd: Długość fali musi być dodatnia!")
+            label_correction.config(text="")
+            label_corrected_length.config(text="")
+            return
 
         corr_per_km, correction, corr_length = calc_corr(wavelength, air_pressure, temp_dry, temp_wet, measured_length)
 
@@ -84,7 +143,7 @@ def init_ui(parent):
                             command=lambda: show_results(entry_wavelength, entry_temp_dry, entry_temp_wet,
                                                          entry_air_pressure, entry_measured_length, label_corr_per_km,
                                                          label_correction, label_corrected_length))
-    calc_button.pack()
+    calc_button.pack(pady=10)
 
     label_corr_per_km = tk.Label(parent, text="")
     label_corr_per_km.pack()
@@ -94,3 +153,19 @@ def init_ui(parent):
 
     label_corrected_length = tk.Label(parent, text="")
     label_corrected_length.pack()
+
+    import_btn = tk.Button(parent, text="Wczytaj dane z pliku", command=lambda: import_data(table))
+    import_btn.pack(pady=10)
+
+    table = ttk.Treeview(parent, columns=("lp", "p", "ts",
+                                          "tm", "length_corr"), show="headings", height=5)
+    table.heading("lp", text="Lp.")
+    table.heading("p", text="Ciśnienie atmosferyczne")
+    table.heading("ts", text="Temp. sucha")
+    table.heading("tm", text="Temp. mokra")
+    table.heading("length_corr", text="Długość poprawiona")
+
+    for col in ("lp", "p", "ts", "tm", "length_corr"):
+        table.column(col, width=80, anchor="center")
+
+    table.pack()

@@ -1,18 +1,18 @@
 import math
 import tkinter as tk
-from importlib.resources import contents
 from tkinter import ttk, filedialog
 from math import sqrt
 
 measurements = []
 
-
-entry_left = None
-entry_right = None
 tabela = None
 label_wynik = None
 
 def import_data():
+    global measurements
+    measurements = []
+    for item in tabela.get_children():
+        tabela.delete(item)
     path = filedialog.askopenfilename(
         title="Wybierz plik z pomiarami",
         filetypes=[("Pliki tekstowe", "*.txt"), ("Wszystkie pliki", "*.*")],
@@ -34,6 +34,8 @@ def import_data():
             continue
 
         parts = line.split()
+        if len(parts) < 2:
+            continue
         h1 = float(parts[0].replace(",", "."))
         h2 = float(parts[1].replace(",", "."))
         h1_h2 = (h1, h2)
@@ -43,7 +45,7 @@ def import_data():
 def calc_c():
     c_result = []
     if len(measurements) <= 1:
-        return "Brak danych", "Brak danych"
+        return None, None
 
     for h1, h2 in measurements:
         if h1 < 200:
@@ -68,7 +70,7 @@ def calc_c():
 def calc_corr_h():
     c_avg, c_err = calc_c()
 
-    if c_avg == "Brak danych":
+    if c_avg is None:
         label_wynik.config(text="Błąd: Wczytaj najpierw plik z danymi!")
         return
 
@@ -77,6 +79,10 @@ def calc_corr_h():
         z = float(entry_z.get())
 
         z_rad = z * math.pi / 200
+
+        if z_rad == 0:
+            label_wynik.config(text="Błąd: Odległość zenitalna nie może być 0!")
+            return
 
         corr_h = h + c_avg/math.sin(z_rad)
 
@@ -94,7 +100,7 @@ def clear_data():
 
 def show_result():
     average, error = calc_c()
-    if average == "Brak danych":
+    if average is None:
         label_wynik.config(text="Błąd: Dodaj co najmniej 2 pomiary!")
     else:
         label_wynik.config(text=f"Wynik kolimacji: {average}\nBłąd kolimacji: {error}")

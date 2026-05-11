@@ -11,6 +11,9 @@ def calc_Ng0(wavelength):
 def show_result(entry_wavelength, label_result):
     try:
         wavenm = float(entry_wavelength.get())
+        if wavenm <= 0:
+            label_result.config(text="Błąd: Długość fali musi być dodatnia!")
+            return
         Ng0 = calc_Ng0(wavenm)
         label_result.configure(text=str(round(Ng0, 4)))
     except ValueError:
@@ -22,15 +25,15 @@ def create_table_and_chart(table_i, frame_chart):
     x_data = []
     y_data = []
 
+    fig = Figure(figsize=(8, 6), dpi=100)
+    ax = fig.add_subplot(111)
+
     for i in range(400, 1610, 10):
         result = calc_Ng0(i)
         table_i.insert('', 'end', values=(i, result))
 
         x_data.append(i)
         y_data.append(result)
-
-        fig = Figure(figsize=(8, 6), dpi=100)
-        ax = fig.add_subplot(111)
 
     ax.plot(x_data, y_data, color='blue', marker='o', markersize = 3)
     ax.set_title("Wykres zależności dlugości fali od współczynnika Ng0")
@@ -53,10 +56,18 @@ def init_ui(parent):
 
     tk.Button(parent, text="Oblicz Ng0", command= lambda: show_result(wavelength, label_result)).pack()
 
-    table_i = ttk.Treeview(parent, columns=("Długość fali", "Wynik"), show="headings")
-    table_i.heading("Długość fali", text="Dlugość fali")
+    frame_table = tk.Frame(parent)
+    frame_table.pack(fill="x")
+
+    table_i = ttk.Treeview(frame_table, columns=("Długość fali", "Wynik"), show="headings", height=10)
+    table_i.heading("Długość fali", text="Długość fali")
     table_i.heading("Wynik", text="Wynik")
-    table_i.pack()
+
+    scrollbar = ttk.Scrollbar(frame_table, orient="vertical", command=table_i.yview)
+    table_i.configure(yscrollcommand=scrollbar.set)
+
+    table_i.pack(side="left", fill="both", expand=True)
+    scrollbar.pack(side="right", fill="y")
 
     frame_chart = tk.Frame(parent)
     frame_chart.pack(expand=True, fill="both")
