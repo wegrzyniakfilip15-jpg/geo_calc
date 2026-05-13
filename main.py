@@ -4,6 +4,7 @@ import kolimacja
 import inklinacja
 import wsp_zalamania
 import popr_atmosfer
+import roznica_łuk_cieciwa
 
 def main():
     root = tk.Tk()
@@ -28,9 +29,12 @@ def main():
     wsp_zalamania.init_ui(tab_wsp_zalamania)
 
     tab_popr_atmosfer = ttk.Frame(notebook)
-    notebook.add(tab_popr_atmosfer, text="Obliczanie poprawki atmosferycznej.")
+    notebook.add(tab_popr_atmosfer, text="Obliczanie poprawki atmosferycznej")
     popr_atmosfer.init_ui(tab_popr_atmosfer)
 
+    tab_roznica_luk_cieciwa = ttk.Frame(notebook)
+    notebook.add(tab_roznica_luk_cieciwa, text="Różnica między cięciwą a łukiem")
+    roznica_łuk_cieciwa.init_ui(tab_roznica_luk_cieciwa)
     root.mainloop()
 
 if __name__ == "__main__":

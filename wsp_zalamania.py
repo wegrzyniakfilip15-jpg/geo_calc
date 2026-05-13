@@ -1,7 +1,10 @@
 import tkinter as tk
 from tkinter import ttk
+import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
+plt.style.use('seaborn-v0_8-darkgrid')
 
 def calc_Ng0(wavelength):
     wavelength = wavelength / 1000
@@ -22,6 +25,9 @@ def create_table_and_chart(table_i, frame_chart):
     x_data = []
     y_data = []
 
+    fig = Figure(figsize=(8, 6), dpi=100)
+    ax = fig.add_subplot(111)
+
     for i in range(400, 1610, 10):
         result = calc_Ng0(i)
         table_i.insert('', 'end', values=(i, result))
@@ -29,8 +35,6 @@ def create_table_and_chart(table_i, frame_chart):
         x_data.append(i)
         y_data.append(result)
 
-        fig = Figure(figsize=(8, 6), dpi=100)
-        ax = fig.add_subplot(111)
 
     ax.plot(x_data, y_data, color='blue', marker='o', markersize = 3)
     ax.set_title("Wykres zależności dlugości fali od współczynnika Ng0")
