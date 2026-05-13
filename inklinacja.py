@@ -9,6 +9,13 @@ z_file = 0.0
 c_file = 0.0
 
 def import_data(table_i):
+    global z_file, c_file, measurements_i
+    measurements_i = []
+
+    for item in table_i.get_children():
+        table_i.delete(item)
+
+
     path = filedialog.askopenfilename(
         title="Wybierz plik z pomiarami",
         filetypes=[("Pliki tekstowe", "*.txt"), ("Wszystkie pliki", "*.*")],
@@ -30,13 +37,13 @@ def import_data(table_i):
         parts = line.split()
 
         if parts[0] == "c":
-            c = float(parts[1].replace(",", "."))
+            c_file = float(parts[1].replace(",", "."))
             continue
         if parts[0] == "mc":
             mc = float(parts[1].replace(",", "."))
             continue
         if parts[0] == "z":
-            z = float(parts[1].replace(",", "."))
+            z_file = float(parts[1].replace(",", "."))
             continue
         try:
             h1 = float(parts[0].replace(",", "."))
@@ -48,7 +55,7 @@ def import_data(table_i):
             else:
                 delta_h = (h2 - (h1 - 200)) / 2
 
-            i_val = (delta_h * math.tan(z_rad_file)) - (c_file / math.cos(z_rad_file))
+            i_val = (delta_h * math.tan(z_rad_file)) - ((c_file / 10000) / math.cos(z_rad_file))
 
             measurements_i.append(i_val)
 
@@ -98,8 +105,11 @@ def calc_corr_h(e_h, e_z, label_result, label_h_result):
         e_h = float(e_h.get())
         e_z = float(e_z.get())
 
-        i_avg, i_err = calc_result(label_result)
         z_rad = e_z * math.pi / 200
+
+        if z_rad == 0:
+            label_h_result.config(text="Błąd: Odległość zenitalna nie może być 0!")
+            return
 
         corr_h = e_h + i_avg * 1/math.tan(z_rad)
 
