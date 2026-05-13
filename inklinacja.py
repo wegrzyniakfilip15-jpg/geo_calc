@@ -146,7 +146,7 @@ def init_ui(parent):
     btn_clear = tk.Button(parent, text="Wyczyść tabelę", command=lambda: clear_data(tabela_i, label_result))
     btn_clear.pack(pady=5)
 
-    tk.Label(parent, text="Odczyt poziomy:").pack(pady=(20, 0))
+    tk.Label(parent, text="Odczyt poziomy:").pack(pady=(10, 0))
     e_h = tk.Entry(parent)
     e_h.pack()
 
@@ -154,10 +154,10 @@ def init_ui(parent):
     e_z = tk.Entry(parent)
     e_z.pack()
 
-    label_h_result = tk.Label(parent, text="", pady=5)
-    label_h_result.pack()
-
     btn_corr = tk.Button(parent, text="Oblicz poprawiony odczyt H",
                          command=lambda: calc_corr_h(e_h, e_z, label_result, label_h_result))
-    btn_corr.pack()
+    btn_corr.pack(pady = 5)
+
+    label_h_result = tk.Label(parent, text="")
+    label_h_result.pack()
 

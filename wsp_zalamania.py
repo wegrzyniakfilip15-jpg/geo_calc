@@ -54,11 +54,11 @@ def init_ui(parent):
     wavelength = tk.Entry(parent)
     wavelength.pack()
 
-    label_result = tk.Label(parent, text="Wynik")
-    label_result.pack(pady = 10)
+    tk.Button(parent, text="Oblicz Ng0", command= lambda: show_result(wavelength, label_result)).pack(pady = 5)
 
 
-    tk.Button(parent, text="Oblicz Ng0", command= lambda: show_result(wavelength, label_result)).pack()
+    label_result = tk.Label(parent)
+    label_result.pack(pady=10)
 
     frame_table = tk.Frame(parent)
     frame_table.pack(fill="x")
