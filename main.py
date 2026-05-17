@@ -5,6 +5,7 @@ import inklinacja
 import wsp_zalamania
 import popr_atmosfer
 import roznica_łuk_cieciwa
+import portrs232
 
 def main():
     root = tk.Tk()
@@ -35,6 +36,10 @@ def main():
     tab_roznica_luk_cieciwa = ttk.Frame(notebook)
     notebook.add(tab_roznica_luk_cieciwa, text="Różnica między cięciwą a łukiem")
     roznica_łuk_cieciwa.init_ui(tab_roznica_luk_cieciwa)
+
+    tab_portrs232 = ttk.Frame(notebook)
+    notebook.add(tab_portrs232, text="Import danych z portu szeregowego")
+    portrs232.init_ui(tab_portrs232)
     root.mainloop()
 
 if __name__ == "__main__":
