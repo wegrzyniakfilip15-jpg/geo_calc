@@ -5,6 +5,7 @@ import threading
 import serial
 
 serial_port = None
+log_file = None
 
 def get_available_ports():
     ports = serial.tools.list_ports.comports()
@@ -12,14 +13,14 @@ def get_available_ports():
 
 
 def connect_to_port(port_cb, text_log):
-    global serial_port
+    global serial_port, log_file
 
     chosen_port = port_cb.get()
 
     if not chosen_port:
         text_log.insert(tk.END, "Błąd: Wybierz port z listy!\n")
         return
-
+    log_file = open("log.txt", "a", encoding="utf-8")
     try:
         serial_port = serial.Serial(chosen_port, 9600, timeout=1)
         text_log.insert(tk.END, f"Połączono z {chosen_port}\n")
@@ -32,7 +33,7 @@ def connect_to_port(port_cb, text_log):
 
 def read_from_port(text_log):
 
-    global serial_port
+    global serial_port, log_file
     while serial_port and serial_port.is_open:
         try:
             if serial_port.in_waiting > 0:
@@ -40,9 +41,20 @@ def read_from_port(text_log):
 
                 if line:
                     text_log.after(0, lambda l = line: (text_log.insert(tk.END, l + '\n'), text_log.see(tk.END)))
+                    if log_file:
+                        log_file.write(line + '\n')
+                        log_file.flush()
                     pass
         except Exception as e:
             break
+
+def disconnect():
+    global serial_port, log_file
+    if serial_port:
+        serial_port.close()
+    if log_file:
+        log_file.close()
+        log_file = None
 
 def init_ui(parent):
     tk.Label(parent, text="Wybierz port RS232:").pack(pady=(10, 0))

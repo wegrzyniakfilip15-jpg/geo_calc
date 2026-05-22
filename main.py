@@ -22,7 +22,7 @@ def main():
 
 
     tab_inklinacja = ttk.Frame(notebook)
-    notebook.add(tab_inklinacja, text="Inklinacja (Wysoki Cel)")
+    notebook.add(tab_inklinacja, text="Inklinacja")
     inklinacja.init_ui(tab_inklinacja)
 
     tab_wsp_zalamania = ttk.Frame(notebook)
