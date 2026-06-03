@@ -40,6 +40,8 @@ def main():
     tab_portrs232 = ttk.Frame(notebook)
     notebook.add(tab_portrs232, text="Import danych z portu szeregowego")
     portrs232.init_ui(tab_portrs232)
+
+    root.protocol("WM_DELETE_WINDOW", lambda: (portrs232.disconnect(), root.destroy()))
     root.mainloop()
 
 if __name__ == "__main__":
