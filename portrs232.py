@@ -52,6 +52,7 @@ def disconnect():
     global serial_port, log_file
     if serial_port:
         serial_port.close()
+        serial_port = None
     if log_file:
         log_file.close()
         log_file = None
@@ -65,7 +66,14 @@ def init_ui(parent):
 
     text_log = tk.Text(parent, height=15)
 
-    btn_connect = tk.Button(parent, text="Połącz", command=lambda: connect_to_port(port_cb, text_log))
-    btn_connect.pack(pady=10)
+    # Frame na przyciski, żeby były obok siebie (opcjonalnie)
+    frame_btn = tk.Frame(parent)
+    frame_btn.pack(pady=10)
+
+    btn_connect = tk.Button(frame_btn, text="Połącz", command=lambda: connect_to_port(port_cb, text_log))
+    btn_connect.pack(side=tk.LEFT, padx=5)
+
+    btn_disconnect = tk.Button(frame_btn, text="Rozłącz", command=disconnect)
+    btn_disconnect.pack(side=tk.LEFT, padx=5)
 
     text_log.pack(expand=True, fill="both")
