@@ -2,25 +2,38 @@ import serial.tools.list_ports
 import tkinter as tk
 import tkinter.ttk as ttk
 import threading
+import tkinter.filedialog as filedialog
 import serial
 
 serial_port = None
 log_file = None
+log_path = None
 
 def get_available_ports():
     ports = serial.tools.list_ports.comports()
     return [port.device for port in ports]
 
+def choose_log_file(log_path_var):
+    global log_path
+    path = filedialog.asksaveasfilename(
+        defaultextension=".txt",
+        filetypes=[("Pliki tekstowe", "*.txt"), ("Wszystkie pliki", "*.*")],
+        title="Wybierz plik logów"
+    )
+    if path:
+        log_path = path
+        log_path_var.set(path)
 
 def connect_to_port(port_cb, text_log):
-    global serial_port, log_file
+    global serial_port, log_file, log_path
 
     chosen_port = port_cb.get()
 
     if not chosen_port:
         text_log.insert(tk.END, "Błąd: Wybierz port z listy!\n")
         return
-    log_file = open("log.txt", "a", encoding="utf-8")
+    current_path = log_path if log_path else "log.txt"
+    log_file = open(current_path, "a", encoding="utf-8")
     try:
         serial_port = serial.Serial(chosen_port, 9600, timeout=1)
         text_log.insert(tk.END, f"Połączono z {chosen_port}\n")
@@ -64,9 +77,20 @@ def init_ui(parent):
     port_cb = ttk.Combobox(parent, values=available_ports, state="normal")
     port_cb.pack()
 
+    log_path_var = tk.StringVar()
+    log_path_var.set("Domyślny: log.txt")
+
+    frame_log = tk.Frame(parent)
+    frame_log.pack(pady=10)
+
+    btn_log = tk.Button(frame_log, text="Wybierz plik zapisu", command=lambda: choose_log_file(log_path_var))
+    btn_log.pack(side=tk.LEFT, padx=5)
+
+    lbl_log = tk.Label(frame_log, textvariable=log_path_var, fg="gray")
+    lbl_log.pack(side=tk.LEFT, padx=5)
+
     text_log = tk.Text(parent, height=15)
 
-    # Frame na przyciski, żeby były obok siebie (opcjonalnie)
     frame_btn = tk.Frame(parent)
     frame_btn.pack(pady=10)
 

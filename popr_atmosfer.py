@@ -105,7 +105,7 @@ def show_results(entry_wavelength, entry_temp_dry, entry_temp_wet, entry_air_pre
         corr_per_km, correction, corr_length = calc_corr(wavelength, air_pressure, temp_dry, temp_wet, measured_length)
 
         label_corr_per_km.config(text=f"Poprawka na km: {round(corr_per_km, 4)} ppm")
-        label_correction.config(text=f"Poprawka do dł.: {round(correction, 4)} m")
+        label_correction.config(text=f"Poprawka do dł.: {round(correction * 1000, 2)} mm")
         label_corrected_length.config(text=f"Długość poprawiona: {round(corr_length, 4)} m")
 
     except ValueError:
