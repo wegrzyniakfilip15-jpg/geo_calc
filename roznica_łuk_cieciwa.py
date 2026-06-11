@@ -7,7 +7,7 @@ plt.style.use('seaborn-v0_8-darkgrid')
 
 def calc_difference(table):
     d = 1
-    r = 6371
+    r = 6371 * 8
 
     x_val = []
     y_val = []
