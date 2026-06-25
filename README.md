@@ -21,6 +21,11 @@ A Python-based desktop GUI application designed to calculate corrections for geo
 
 ## Getting Started
 
+### Option 1: Run the executable (Easiest)
+1. Download the compiled application from the [Releases] tab.
+2. Run the `main` executable directly. No Python installation is required.
+
+### Option 2: Run from source
 1. **Clone the repository:**
    ```bash
    git clone https://github.com/wegrzyniakfilip15-jpg/techniki_pomiarowe
