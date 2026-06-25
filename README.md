@@ -38,7 +38,7 @@ A Python-based desktop GUI application designed to calculate corrections for geo
    python main.py
    ```
 
-   ##  Demo Usage
+##  Demo Usage
 
 To test the application's functionality without external instruments, you can use the sample text files provided directly in the repository.
 
