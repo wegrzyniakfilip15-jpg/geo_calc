@@ -28,8 +28,8 @@ A Python-based desktop GUI application designed to calculate corrections for geo
 ### Option 2: Run from source
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/wegrzyniakfilip15-jpg/techniki_pomiarowe
-   cd techniki_pomiarowe
+   git clone https://github.com/wegrzyniakfilip15-jpg/geo_calc
+   cd geo_calc
    ```
 
 2. **Install required libraries:**
