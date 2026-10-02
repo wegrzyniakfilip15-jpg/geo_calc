@@ -4,7 +4,7 @@ import tkinter.ttk as ttk
 import threading
 import tkinter.filedialog as filedialog
 import serial
-
+from google import genai
 serial_port = None
 log_file = None
 log_path = None
@@ -70,6 +70,22 @@ def disconnect():
         log_file.close()
         log_file = None
 
+def ai_summary(text_log):
+    global log_path
+    path = log_path if log_path else "log.txt"
+    with open(path, encoding="utf-8") as f:
+        logs = f.read()
+
+    client = genai.Client()
+
+    response = client.models.generate_content(
+        model="gemini-3.8-flash",
+        contents=f"Podsumuj te logi {logs}"
+    )
+
+    text_log.insert(tk.END, response.text)
+    text_log.see(tk.END)
+
 def init_ui(parent):
     tk.Label(parent, text="Wybierz port RS232:").pack(pady=(10, 0))
 
@@ -99,5 +115,8 @@ def init_ui(parent):
 
     btn_disconnect = tk.Button(frame_btn, text="Rozłącz", command=disconnect)
     btn_disconnect.pack(side=tk.LEFT, padx=5)
+
+    btn_summarize = tk.Button(frame_btn, text="Podsumuj z AI", command=lambda: ai_summary(text_log))
+    btn_summarize.pack(side=tk.LEFT, padx=5)
 
     text_log.pack(expand=True, fill="both")
